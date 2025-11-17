@@ -1,24 +1,11 @@
-import os
-import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import csv
 import ttkbootstrap as tb
 import webbrowser
+from data import Data
 
-
-def get_file_paths(language):
-    if language == "Italian":
-        return 'name_foodID_correspondence.tsv', 'food_details'
-    else:
-        return 'name_foodID_correspondence_EN.tsv', 'food_details_EN'
-
-
-def read_tsv(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        reader = csv.DictReader(file, delimiter='\t', fieldnames=['food_id', 'food_name'])
-        return [row for row in reader]
-
+d = Data()
 
 def read_table(file_path):
     with open(file_path, 'r') as file:
@@ -32,34 +19,13 @@ def write_tsv(file_path, data, headers):
         writer.writeheader()
         writer.writerows(data)
 
-
-def read_food_details(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter='\t')
-        return {rows[0]: float(rows[1]) for rows in reader if rows[1].replace('.', '', 1).isdigit()}
-
-
-def load_name_foodID_correspondence(language):
-    file_path, _ = get_file_paths(language)
-    return read_tsv(file_path)
-
-
 def load_blank_table():
     return read_table('blank_table.tsv')
 
 
-def get_food_details_path(food_id, language):
-    _, folder = get_file_paths(language)
-    return os.path.join(folder, f'{food_id}')
-
-
-def switch_language(*args):
-    global name_foodID_correspondence, food_id_map, sorted_food_names
+def switch_language(event):
     language = current_language.get()
-    name_foodID_correspondence = load_name_foodID_correspondence(language)
-    food_id_map = {row['food_name']: row['food_id'] for row in name_foodID_correspondence}
-    sorted_food_names = sorted(food_id_map.keys())
-    food_menu['values'] = sorted_food_names
+    d.switch_language(language)
 
 
 def add_food():
@@ -70,13 +36,13 @@ def add_food():
         messagebox.showerror("Error", "Please enter a valid number for quantity.")
         return
     
-    if food_name not in food_id_map:
+    if food_name not in d.get_food_list():
         messagebox.showerror("Error", "Food not found in the database.")
         return
 
-    food_id = food_id_map[food_name]
+    food_id = d.get_food_id(food_name)
     try:
-        food_details = read_food_details(get_food_details_path(food_id, current_language.get()))
+        food_details = d.read_food_details(food_id)
     except FileNotFoundError:
         messagebox.showerror("Error", f"Details file for food ID {food_id} not found.")
         return
@@ -123,9 +89,9 @@ def delete_food(index):
         return
     
     food_name, quantity = added_foods.pop(index)
-    food_id = food_id_map[food_name]
+    food_id = d.get_food_id(food_name)
     try:
-        food_details = read_food_details(get_food_details_path(food_id, current_language.get()))
+        food_details = d.read_food_details(food_id)
     except FileNotFoundError:
         messagebox.showerror("Error", f"Details file for food ID {food_id} not found.")
         return
@@ -157,9 +123,9 @@ def duplicate_food(index):
     food_name, quantity = added_foods[index]
     added_foods.append((food_name, quantity))
     
-    food_id = food_id_map[food_name]
+    food_id = d.get_food_id(food_name)
     try:
-        food_details = read_food_details(get_food_details_path(food_id, current_language.get()))
+        food_details = d.read_food_details(food_id)
     except FileNotFoundError:
         messagebox.showerror("Error", f"Details file for food ID {food_id} not found.")
         return
@@ -190,8 +156,7 @@ def duplicate_food(index):
 
 def search_foods(event):
     search_term = search_var.get()
-    matching_foods = [food for food in sorted_food_names if search_term.lower() in food.lower()]
-    food_menu['values'] = matching_foods
+    food_menu['values'] = d.search_food(search_term)
 
 
 def export_data():
@@ -275,9 +240,6 @@ quantity_var = tk.StringVar()
 search_var = tk.StringVar()
 
 current_language = tk.StringVar(value="Italian")
-name_foodID_correspondence = load_name_foodID_correspondence(current_language.get())
-food_id_map = {row['food_name']: row['food_id'] for row in name_foodID_correspondence}
-sorted_food_names = sorted(food_id_map.keys())
 blank_table = load_blank_table()
 micronutrient_list = [row['nutrients'] for row in blank_table]
 micronutrient_totals = {micronutrient: 0.0 for micronutrient in micronutrient_list}
@@ -298,6 +260,7 @@ search_entry = tb.Entry(main_frame, textvariable=search_var, width=50)
 search_entry.pack(pady=5)
 search_entry.bind('<KeyRelease>', search_foods)
 
+sorted_food_names = sorted(d.get_food_list())
 tb.Label(main_frame, text="Select Food:").pack(pady=5)
 food_menu = tb.Combobox(main_frame, textvariable=food_var, values=sorted_food_names, width=50, state="readonly", bootstyle = "primary")
 food_menu.pack(pady=5)
@@ -346,4 +309,3 @@ website1_button.pack(side="left", padx=5)
 
 root.resizable(width=False, height=True)
 root.mainloop()
-# Version 1.0 - July 2024 - Marco Fabbrini - fabbrinimarco.mf@gmail.com
