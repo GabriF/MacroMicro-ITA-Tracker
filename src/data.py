@@ -1,11 +1,8 @@
 import csv
-
+from config import DATA_DIR
 
 class Data:
     _instance = None
-
-    def __init__(self):
-        pass
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -21,12 +18,12 @@ class Data:
             return [row for row in reader]
 
     def _init_it(self):
-        self._food_data_path = 'food_details'
-        self._food_name_to_id = {row['food_name']: row['food_id'] for row in self._read_tsv('name_foodID_correspondence.tsv')}
+        self._food_data_path = f'{DATA_DIR}/food_details'
+        self._food_name_to_id = {row['food_name']: row['food_id'] for row in self._read_tsv(f'{DATA_DIR}/name_foodID_correspondence.tsv')}
 
     def _init_en(self):
         self._food_data_path = 'food_details_EN'
-        self._food_name_to_id = {row['food_name']: row['food_id'] for row in self._read_tsv('name_foodID_correspondence_EN.tsv')}
+        self._food_name_to_id = {row['food_name']: row['food_id'] for row in self._read_tsv(f'{DATA_DIR}/name_foodID_correspondence_EN.tsv')}
 
     def get_food_list(self) -> list[str]:
         return self._food_name_to_id.keys()

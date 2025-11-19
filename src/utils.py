@@ -1,4 +1,5 @@
 import csv
+from config import DATA_DIR
 
 def read_table(file_path):
     with open(file_path, 'r') as file:
@@ -12,4 +13,4 @@ def write_tsv(file_path, data, headers):
         writer.writerows(data)
 
 def load_blank_table():
-    return read_table('blank_table.tsv')
+    return read_table(f'{DATA_DIR}/blank_table.tsv')

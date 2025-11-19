@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 import utils
 import webbrowser
 from data import Data
+from config import VERSION, AUTHOR
 
 URL_MAP = {
     "https://github.com/FabbriniMarco/MacroMicro-ITA-Tracker": "https://github.com/FabbriniMarco/MacroMicro-ITA-Tracker",
@@ -157,7 +158,7 @@ class MacroMicro(ttk.Frame):
         text_widget.tag_bind("link", "<Button-1>", self.open_link)
         
         text_widget.insert("1.0", "MacroMicro-ITA-Tracker\n", "bold")
-        text_widget.insert("end", "Version: 1.0\nMaintainer: Fabbrini Marco\nContact: fabbrinimarco.mf@gmail.com\n\nFor usage instructions, visit:\n")
+        text_widget.insert("end", f"Version: {VERSION}\nMaintainer: {AUTHOR}\nContact: fabbrinimarco.mf@gmail.com\n\nFor usage instructions, visit:\n")
         text_widget.insert("end", "https://github.com/FabbriniMarco/MacroMicro-ITA-Tracker\n", "link")
         text_widget.insert("end", "\nFood tables have been obtained from CREA, Centro di ricerca Alimenti e Nutrizione, original source web pages:\n")
         text_widget.insert("end", "https://www.crea.gov.it/alimenti-e-nutrizione\n", "link")
@@ -226,9 +227,8 @@ class MacroMicro(ttk.Frame):
         search_entry.pack(pady=5)
         search_entry.bind('<KeyRelease>', self.search_foods)
 
-        sorted_food_names = sorted(self.data_source.get_food_list())
         ttk.Label(self, text="Select Food:").pack(pady=5)
-        self.food_menu = ttk.Combobox(self, textvariable=self.food_var, values=sorted_food_names, width=50, state="readonly", bootstyle = "primary")
+        self.food_menu = ttk.Combobox(self, textvariable=self.food_var, values=self.sorted_food_names, width=50,  state="readonly", bootstyle = "primary")
         self.food_menu.pack(pady=5)
 
         ttk.Label(self, text="Enter Quantity (grams):").pack(pady=5)
