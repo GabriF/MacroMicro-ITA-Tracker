@@ -11,6 +11,11 @@ class Data:
     
     def __init__(self):
         self._init_it()
+        self._serving_size : dict[str, int] = dict()
+        with open(f'{DATA_DIR}/serving_size.tsv', 'r') as f:
+            for line in f.readlines()[1:]:
+                tokens = line.split()
+                self._serving_size[tokens[0]] = tokens[1]
 
     def _read_tsv(cls, file_path):
         with open(file_path, 'r', encoding='utf-8') as file:
@@ -42,5 +47,9 @@ class Data:
             reader = csv.reader(f, delimiter='\t')
             return {rows[0]: float(rows[1]) for rows in reader if rows[1].replace('.', '', 1).isdigit()}
 
+    def get_serving_size(self, id : str) -> int:
+        return self._serving_size[id]
+
     def search_food(self, search_term : str) -> list[str]:
         return [food_name for food_name in self._food_name_to_id.keys() if search_term.lower() in food_name.lower()]
+    

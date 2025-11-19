@@ -227,9 +227,15 @@ class MacroMicro(ttk.Frame):
         search_entry.pack(pady=5)
         search_entry.bind('<KeyRelease>', self.search_foods)
 
+        sorted_food_names = sorted(self.data_source.get_food_list())
         ttk.Label(self, text="Select Food:").pack(pady=5)
-        self.food_menu = ttk.Combobox(self, textvariable=self.food_var, values=self.sorted_food_names, width=50,  state="readonly", bootstyle = "primary")
+        self.food_menu = ttk.Combobox(self, textvariable=self.food_var, values=sorted_food_names, width=50,  state="readonly", bootstyle = "primary")
         self.food_menu.pack(pady=5)
+        self.food_var.trace('w', lambda *args: 
+            self.quantity_var.set(self.data_source.get_serving_size(
+                self.data_source.get_food_id(self.food_var.get())
+            ))
+        )
 
         ttk.Label(self, text="Enter Quantity (grams):").pack(pady=5)
         self.quantity_entry = ttk.Entry(self, textvariable=self.quantity_var, width=50)
