@@ -153,9 +153,9 @@ class MacroMicro(ttk.Frame):
         messagebox.showinfo("Info", f"Duplicated {quantity}g of {food_name}")
         self.update_added_foods_list()
 
-    def search_foods(self, event):
+    def search_foods(self, *args):
         search_term = self.search_var.get()
-        self.food_menu['values'] = self.data_source.search_food(search_term)
+        self.food_menu['values'] = sorted(self.data_source.search_food(search_term))
 
     def wipe_data(self):
         if messagebox.askyesno("Confirm Wipe", "Are you sure you want to wipe all data? Unsaved data will be lost."):
@@ -258,12 +258,12 @@ class MacroMicro(ttk.Frame):
         ttk.Label(self, text="Search Food:").pack(pady=5)
         search_entry = ttk.Entry(self, textvariable=self.search_var, width=50)
         search_entry.pack(pady=5)
-        search_entry.bind('<KeyRelease>', self.search_foods)
+        self.search_var.trace('w', self.search_foods)
 
-        sorted_food_names = sorted(self.data_source.get_food_list())
+        self.sorted_food_names = sorted(self.data_source.get_food_list())
         ttk.Label(self, text="Select Food:").pack(pady=5)
         self.food_menu = ttk.Combobox(self, textvariable=self.food_var,
-                                      values=sorted_food_names, width=50,  state="readonly", bootstyle="primary")
+                                      values=self.sorted_food_names, width=50,  state="readonly", bootstyle="primary")
         self.food_menu.pack(pady=5)
         self.food_var.trace('w', lambda *args:
                             self.quantity_var.set(self.data_source.get_serving_size(
