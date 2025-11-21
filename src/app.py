@@ -155,7 +155,8 @@ class MacroMicro(ttk.Frame):
 
     def search_foods(self, *args):
         search_term = self.search_var.get()
-        self.food_menu['values'] = sorted(self.data_source.search_food(search_term))
+        self.food_menu['values'] = sorted(
+            self.data_source.search_food(search_term))
 
     def wipe_data(self):
         if messagebox.askyesno("Confirm Wipe", "Are you sure you want to wipe all data? Unsaved data will be lost."):
@@ -266,10 +267,13 @@ class MacroMicro(ttk.Frame):
                                       values=self.sorted_food_names, width=50,  state="readonly", bootstyle="primary")
         self.food_menu.pack(pady=5)
         self.food_var.trace('w', lambda *args:
-                            self.quantity_var.set(self.data_source.get_serving_size(
-                                self.data_source.get_food_id(
-                                    self.food_var.get())
-                            ))
+                            self.quantity_var.set(
+                                self.data_source.get_serving_size(
+                                    self.data_source.get_food_id(
+                                        self.food_var.get()
+                                    )
+                                )
+                            )
                             )
 
         ttk.Label(self, text="Enter Quantity (grams):").pack(pady=5)
