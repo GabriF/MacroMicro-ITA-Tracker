@@ -1,5 +1,20 @@
 import csv
-from config import DATA_DIR
+import os
+import sys
+
+
+def resource_path(relative_path: str) -> str:
+    """
+    Get absolute path to resource, works for dev and PyInstaller build.
+    """
+    if hasattr(sys, "_MEIPASS"):
+        # When running from the PyInstaller bundle
+        base_path = sys._MEIPASS
+    else:
+        # When running from source, assume this file is in src/ and go one level up
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+    return os.path.join(base_path, relative_path)
 
 
 def read_table(file_path):
@@ -16,4 +31,6 @@ def write_tsv(file_path, data, headers):
 
 
 def load_blank_table():
-    return read_table(f'{DATA_DIR}/blank_table.tsv')
+    data_dir = resource_path("data")
+    file_path = os.path.join(data_dir, "blank_table.tsv")
+    return read_table(file_path)

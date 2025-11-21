@@ -96,9 +96,22 @@ class MacroMicro(ttk.Frame):
         self.added_foods.append((food_name, quantity))
         self.update_added_foods_list()
 
-    def switch_language(self, event):
+    def switch_language(self, event=None):
+        if self.added_foods:
+            if not messagebox.askyesno(
+                "Change language",
+                "Changing language will clear the current table. Continue?"
+            ):
+                return
+            self.wipe_data()
+
         language = self.current_language.get()
         self.data_source.switch_language(language)
+        # Reload GUI
+        self.search_var.set('')
+        self.sorted_food_names = sorted(self.data_source.get_food_list())
+        self.food_menu['values'] = self.sorted_food_names
+        self.food_var.set('')
 
     def update_added_foods_list(self):
         for widget in self.added_foods_frame.winfo_children():
